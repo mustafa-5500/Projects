@@ -17,6 +17,8 @@ import static com.Acrobot.ChestShop.Permission.ADMIN;
 
 /**
  * @author Acrobot
+ * Check if the chest exists and if the player has permissions to the chest
+ * only need the owner line from the sign, therefore a traderchest can use this listener.
  */
 public class ChestChecker implements Listener {
 

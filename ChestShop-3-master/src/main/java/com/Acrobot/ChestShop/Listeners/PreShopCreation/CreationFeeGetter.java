@@ -21,6 +21,7 @@ import static com.Acrobot.ChestShop.Permission.NOFEE;
 
 /**
  * @author Acrobot
+ * Checks if the player has enough money to create the shop, by default its 0.
  */
 public class CreationFeeGetter implements Listener {
 

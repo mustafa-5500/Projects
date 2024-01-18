@@ -8,6 +8,7 @@ import org.bukkit.event.Listener;
 
 /**
  * @author Acrobot
+ * If the shop chest creation event is cancelled, then send the reason for the cancellation
  */
 public class ErrorMessageSender implements Listener {
 

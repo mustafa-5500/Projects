@@ -4,6 +4,9 @@ import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.bukkit.inventory.ItemStack;
 
+/*
+The Item alias module and sign parse listeners are the two listeners for this event.
+ */
 public class ItemParseEvent extends Event {
     private static final HandlerList handlers = new HandlerList();
 
