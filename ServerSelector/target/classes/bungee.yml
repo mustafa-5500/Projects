@@ -1,0 +1,9 @@
+name: ServerSelector
+version: '1.20-R0.1-SNAPSHOT'
+main: serverselectorplugin.serverselector.ServerSelector
+description: "Bungeecord plugin to switch servers"
+
+commands:
+  openserver:
+    description: "Switches the server, based on what was given"
+    usage: "/openserver <target_server>"

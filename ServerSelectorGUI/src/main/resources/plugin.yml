@@ -1,0 +1,8 @@
+name: ServerSelectorGUI
+version: '${project.version}'
+main: serverselectorplugin.serverselectorgui.ServerSelectorGUI
+api-version: '1.20'
+commands:
+  servers:
+    description: "opense the servers GUI"
+    usage: "/servers"

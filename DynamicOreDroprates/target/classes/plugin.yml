@@ -1,0 +1,4 @@
+name: DynamicOreDroprates
+version: '1.0-SNAPSHOT'
+main: dynamicoredropratesplugin.dynamicoredroprates.DynamicOreDroprates
+api-version: '1.20'

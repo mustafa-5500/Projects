@@ -1,0 +1,4 @@
+name: DynamicOreDroprates
+version: '${project.version}'
+main: dynamicoredropratesplugin.dynamicoredroprates.DynamicOreDroprates
+api-version: '1.20'
