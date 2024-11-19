@@ -6,6 +6,7 @@ import com.Acrobot.ChestShop.Configuration.Properties;
 import com.Acrobot.ChestShop.Events.ItemParseEvent;
 import com.Acrobot.ChestShop.Events.PreShopCreationEvent;
 import com.Acrobot.ChestShop.Signs.ChestShopSign;
+import com.Acrobot.ChestShop.Signs.TraderShopSign;
 import com.Acrobot.ChestShop.Utils.ItemUtil;
 import com.Acrobot.ChestShop.Utils.uBlock;
 import org.bukkit.Bukkit;
@@ -15,7 +16,9 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
+import org.checkerframework.checker.units.qual.A;
 
+import java.util.ArrayList;
 import java.util.regex.Matcher;
 
 import static com.Acrobot.Breeze.Utils.MaterialUtil.*;
@@ -26,48 +29,76 @@ import static com.Acrobot.ChestShop.Signs.ChestShopSign.AUTOFILL_CODE;
 
 /**
  * @author Acrobot
+ * Originall checks the last line for an item, and fills in the name of the item
+ * will also make it check the second last line, this will only be an item for tradershops
  */
 public class ItemChecker implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST)
     public static void onPreShopCreation(PreShopCreationEvent event) {
-        String itemCode = ChestShopSign.getItem(event.getSignLines());
+        String itemCode2 = ChestShopSign.getItem(event.getSignLines());
+        String itemCode1 = TraderShopSign.getItem(event.getSignLines());
 
-        ItemParseEvent parseEvent = new ItemParseEvent(itemCode);
+        //the last line, every shop chest has an item here
+        ItemParseEvent parseEvent = new ItemParseEvent(itemCode2);
         Bukkit.getPluginManager().callEvent(parseEvent);
-        ItemStack item = parseEvent.getItem();
 
-        if (item == null) {
-            if (Properties.ALLOW_AUTO_ITEM_FILL && itemCode.equals(AUTOFILL_CODE)) {
-                Container container = uBlock.findConnectedContainer(event.getSign());
-                if (container != null) {
-                    for (ItemStack stack : container.getInventory().getContents()) {
-                        if (!MaterialUtil.isEmpty(stack)) {
-                            item = stack;
-                            break;
+        //second last line only trader chest have a line here
+        ItemParseEvent parseEvent1 = new ItemParseEvent(itemCode1);
+        Bukkit.getPluginManager().callEvent(parseEvent1);
+
+        //first do the last item that every shop chest has, then the second last item.
+        ArrayList<String> itemCodes = new ArrayList<String>();
+        itemCodes.add(itemCode2);
+        itemCodes.add(itemCode1);
+        ArrayList<ItemStack> items = new ArrayList<ItemStack>();
+        items.add(parseEvent.getItem());
+        items.add(parseEvent1.getItem());
+
+        byte j = 0;
+        byte i = 0;
+        for (byte x = 0; x < items.size(); x ++) {
+            ItemStack item = items.get(x);
+            String itemCode = itemCodes.get(x);
+
+            if (item == null) {
+                if (Properties.ALLOW_AUTO_ITEM_FILL && itemCode.equals(AUTOFILL_CODE)) {
+                    Container container = uBlock.findConnectedContainer(event.getSign());
+                    if (container != null) {
+                        for (ItemStack stack : container.getInventory().getContents()) {
+                            if (!MaterialUtil.isEmpty(stack)) {
+                                item = stack;
+                                if (i == j) {
+                                    j ++;
+                                    break;
+                                }
+                            }
                         }
                     }
-                }
 
-                if (item == null) {
-                    event.setSignLine(ITEM_LINE, ChatColor.BOLD + ChestShopSign.AUTOFILL_CODE);
-                    event.setOutcome(ITEM_AUTOFILL);
-                    return;
+                    if (item == null && i == 0) {
+                        event.setSignLine((byte) (ITEM_LINE - i), ChatColor.BOLD + ChestShopSign.AUTOFILL_CODE);
+                        event.setOutcome(ITEM_AUTOFILL);
+                        return;
+                    }
+                } else {
+                    if (i == 0) {
+                        event.setOutcome(INVALID_ITEM);
+                        return;
+                    }
                 }
-            } else {
+            }
+
+            itemCode = ItemUtil.getSignName(item);
+
+            if (StringUtil.getMinecraftStringWidth(itemCode) > MAXIMUM_SIGN_WIDTH) {
                 event.setOutcome(INVALID_ITEM);
                 return;
             }
+
+            event.setSignLine((byte) (ITEM_LINE - i), itemCode);
+            i++;
         }
-
-        itemCode = ItemUtil.getSignName(item);
-
-        if (StringUtil.getMinecraftStringWidth(itemCode) > MAXIMUM_SIGN_WIDTH) {
-            event.setOutcome(INVALID_ITEM);
-            return;
-        }
-
-        event.setSignLine(ITEM_LINE, itemCode);
     }
 
     private static boolean isSameItem(String newCode, ItemStack item) {
